@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+
+# Guilherme Schützer - NUSP 8658544
+# MAC0425 - EP3 - 20/11/2016
+
 # qlearningAgents.py
 # ------------------
 # Licensing Information:  You are free to use or extend these projects for
@@ -62,10 +67,10 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
 
-        qMax = None
+        qMax = 0
         for action in self.getLegalActions(state):
             qValue = self.getQValue(state, action)
-            if qMax == None:
+            if qMax == 0:
                 qMax = qValue
             if qValue > qMax:
                 qMax = qValue
@@ -197,18 +202,20 @@ class ApproximateQAgent(PacmanQAgent):
         """
 
         qValue = 0
+
+        if state == 'TERMINAL_STATE':
+            return qValue
+
         feats = self.featExtractor.getFeatures(state, action)
         weights = self.getWeights()
-        for f in feats:
-            qValue += weights[f] * feats[f]
+        for i in feats:
+            qValue += weights[i] * feats[i]
 
         return qValue
 
     def computeActionFromQValues(self, state):
         """
-          Compute the best action to take in a state.  Note that if there
-          are no legal actions, which is the case at the terminal state,
-          you should return None.
+        Método copiado do agente Q-Learning
         """
 
         qMax = None
@@ -239,8 +246,8 @@ class ApproximateQAgent(PacmanQAgent):
         feats = self.featExtractor.getFeatures(state, action)
 
         delta = (reward + self.discount * self.getQValue(nextState, maxAction)) - self.getQValue(state, action)
-        for f in self.featExtractor.getFeatures(state, action):
-            self.weights[f] = self.weights[f] + self.alpha * delta * feats[f]
+        for i in feats:
+            self.weights[i] = self.weights[i] + self.alpha * delta * feats[i]
 
 
     def final(self, state):

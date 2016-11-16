@@ -198,15 +198,50 @@ class ApproximateQAgent(PacmanQAgent):
 
         qValue = 0
         feats = self.featExtractor.getFeatures(state, action)
-        for feat, weight in self.featExtractor.getFeatures(state, action), self.weights:
-            qValue += feat * weight
+        weights = self.getWeights()
+        for f in feats:
+            qValue += weights[f] * feats[f]
+
+        return qValue
+
+    def computeActionFromQValues(self, state):
+        """
+          Compute the best action to take in a state.  Note that if there
+          are no legal actions, which is the case at the terminal state,
+          you should return None.
+        """
+
+        qMax = None
+        maxActions = []
+
+        for a in self.getLegalActions(state):
+            qValue = self.getQValue(state, a)
+            if qMax == None:
+                qMax = qValue
+                maxActions = [a]
+            elif qValue > qMax:
+                qMax = qValue
+                maxActions = [a]
+            elif qValue == qMax:
+                maxActions.append(a)
+
+        if not maxActions:
+            return None
+
+        return random.choice(maxActions)
 
     def update(self, state, action, nextState, reward):
         """
            Should update your weights based on transition
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        maxAction = self.computeActionFromQValues(nextState)
+        feats = self.featExtractor.getFeatures(state, action)
+
+        delta = (reward + self.discount * self.getQValue(nextState, maxAction)) - self.getQValue(state, action)
+        for f in self.featExtractor.getFeatures(state, action):
+            self.weights[f] = self.weights[f] + self.alpha * delta * feats[f]
+
 
     def final(self, state):
         "Called at the end of each game."
